@@ -5,11 +5,11 @@ import tkinter as tk
 UNIT = 40  # pixels
 MAZE_H = 5  # grid height
 MAZE_W = 5  # grid width
-# GOAL = np.array([4, 1])
-# BLOCK = np.array([[2, 1], [3, 1], [2, 3], [3, 3]])
+GOAL = np.array([4, 1])
+BLOCK = np.array([[2, 1], [3, 1], [2, 3], [3, 3]])
 
-GOAL = np.array([3, 3])
-BLOCK = np.array([[3, 2]])
+# GOAL = np.array([3, 3])
+# BLOCK = np.array([[3, 2]])
 
 # GOAL = np.array([1, 5])
 # BLOCK = np.array([[1, 3],[2, 3],[3, 3], [4, 3]])
