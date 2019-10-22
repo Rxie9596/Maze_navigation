@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from maze_env_yu import Maze
+import time
 
 np.random.seed(2)
 tf.set_random_seed(2)  # reproducible
@@ -8,13 +9,13 @@ tf.set_random_seed(2)  # reproducible
 # Superparameters
 OUTPUT_GRAPH = True
 MAX_EPISODE = 3000
-DISPLAY_REWARD_THRESHOLD = 100  # renders environment if total episode reward is greater then this threshold
-MAX_EP_STEPS = 1000   # maximum time step in one episode
+DISPLAY_REWARD_THRESHOLD = 1000  # renders environment if total episode reward is greater then this threshold
+MAX_EP_STEPS = 100   # maximum time step in one episode
 RENDER = False  # rendering wastes time
-RENDER_EP = 200000
+RENDER_EP = 500
 
 GAMMA = 0.99     # reward discount in TD error
-LR_A = 0.001    # learning rate for actor
+LR_A = 0.001   # learning rate for actor
 LR_C = 0.01     # learning rate for critic
 BETA = 0.0001
 
@@ -35,7 +36,7 @@ class Actor(object):
         with tf.variable_scope('Actor'):
             l1 = tf.layers.dense(
                 inputs=self.s,
-                units=50,    # number of hidden units
+                units=30,    # number of hidden units
                 activation=tf.nn.relu,
                 kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
@@ -44,7 +45,7 @@ class Actor(object):
 
             l2 = tf.layers.dense(
                 inputs=l1,
-                units=50,    # number of hidden units
+                units=30,    # number of hidden units
                 activation=tf.nn.relu,
                 kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
@@ -63,7 +64,7 @@ class Actor(object):
         with tf.variable_scope('exp_v'):
             log_prob = tf.log(self.acts_prob[0, self.a])
             self.exp_v = tf.reduce_mean(log_prob * self.td_error) # advantage (TD_error) guided loss
-            # self.exp_v = log_prob * self.td_error + BETA * tf.reduce_sum(tf.math.multiply(self.acts_prob, tf.log(tf.math.truediv(1.0, self.acts_prob))))
+            # self.exp_v = tf.reduce_mean(log_prob * self.td_error) + BETA * tf.reduce_sum(tf.math.multiply(self.acts_prob, tf.log(tf.math.truediv(1.0, self.acts_prob))))
 
         with tf.variable_scope('train'):
             self.train_op = tf.train.AdamOptimizer(lr).minimize(-self.exp_v)  # minimize(-exp_v) = maximize(exp_v)
@@ -91,7 +92,7 @@ class Critic(object):
         with tf.variable_scope('Critic'):
             l1 = tf.layers.dense(
                 inputs=self.s,
-                units=50,  # number of hidden units
+                units=30,  # number of hidden units
                 activation=tf.nn.relu,  # None
                 # have to be linear to make sure the convergence of actor.
                 # But linear approximator seems hardly learns the correct Q.
@@ -102,7 +103,7 @@ class Critic(object):
 
             l2 = tf.layers.dense(
                 inputs=l1,
-                units=50,    # number of hidden units
+                units=30,    # number of hidden units
                 activation=tf.nn.relu,
                 kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
@@ -148,8 +149,12 @@ for i_episode in range(MAX_EPISODE):
     if i_episode > RENDER_EP:
         RENDER = True
 
-    s = env.reset()
-    if RENDER: env.render()
+    pos = env.random_pos()
+    s = env.reset(agent_cor=pos)
+    if RENDER:
+        env.render()
+        time.sleep(0.1)
+
     t = 0
     track_r = []
     while True:
@@ -161,8 +166,8 @@ for i_episode in range(MAX_EPISODE):
         discount = 100.0 / float(t+1)
         r = r * discount
 
-        # if t == MAX_EP_STEPS - 1:
-        #     r = -10
+        if t == MAX_EP_STEPS - 1:
+            r = -5
 
         track_r.append(r)
 
@@ -178,12 +183,12 @@ for i_episode in range(MAX_EPISODE):
 
             ep_rs_sum = sum(track_r)
 
-            # if 'running_reward' not in globals():
-            #     running_reward = ep_rs_sum
-            # else:
-            #     running_reward = running_reward * 0.95 + ep_rs_sum * 0.05
+            if 'running_reward' not in globals():
+                running_reward = ep_rs_sum
+            else:
+                running_reward = running_reward * 0.95 + ep_rs_sum * 0.05
 
-            running_reward = ep_rs_sum
+            # running_reward = ep_rs_sum
 
             if running_reward > DISPLAY_REWARD_THRESHOLD: RENDER = True  # rendering
             print("episode:", i_episode, "  reward:", int(running_reward))

@@ -1,19 +1,26 @@
 import numpy as np
 import time
 import tkinter as tk
+import random
 
 UNIT = 40  # pixels
 MAZE_H = 5  # grid height
 MAZE_W = 5  # grid width
-GOAL = np.array([4, 1])
-BLOCK = np.array([[2, 1], [3, 1], [2, 3], [3, 3]])
 
-# GOAL = np.array([3, 3])
-# BLOCK = np.array([[3, 2]])
+# env1
+# GOAL = np.array([4, 1])
+# BLOCK = np.array([[2, 1], [3, 1], [2, 3], [3, 3]])
+# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
 
+# env2
 # GOAL = np.array([1, 5])
 # BLOCK = np.array([[1, 3],[2, 3],[3, 3], [4, 3]])
+# INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2],[3, 1],[3, 2]])
 
+# env3
+GOAL = np.array([4, 2])
+BLOCK = np.array([[1, 3],[3, 3],[3, 2], [3, 1]])
+INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2]])
 
 AGENT = np.array([1, 1])
 
@@ -36,6 +43,7 @@ class Maze(tk.Tk, object):
         self.goal = GOAL
         self.block = BLOCK
         self.agent = AGENT
+        self.initial = INITIAL
         # self.map = np.zeros((MAZE_W, MAZE_H))
 
         self._build_maze()
@@ -145,6 +153,16 @@ class Maze(tk.Tk, object):
             fill='red')
 
         self.update()
-        time.sleep(0.01)
+        time.sleep(0.1)
+
+    def random_pos(self):
+
+        while True:
+            pos = random.choice(self.initial)
+            if (pos.tolist() not in self.goal.tolist()) and (pos.tolist() not in self.block.tolist()):
+                break
+
+        return pos
+
 
 
