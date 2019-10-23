@@ -4,27 +4,44 @@ from maze_env_yu import Maze
 import time
 import scipy.io as sio
 
-np.random.seed(2)
-tf.set_random_seed(2)  # reproducible
 
-# Superparameters
+
+env_name = '3'
+exp = '2'
+
+np.random.seed(int(exp))
+tf.set_random_seed(int(exp))  # reproducible
+
+# Parameters
 OUTPUT_GRAPH = True
-MAX_EPISODE = 2000
-DISPLAY_REWARD_THRESHOLD = 10000  # renders environment if total episode reward is greater then this threshold
+MAX_EPISODE = 1000
+DISPLAY_REWARD_THRESHOLD = 1000  # renders environment if total episode reward is greater then this threshold
 MAX_EP_STEPS = 100   # maximum time step in one episode
 RENDER = False  # rendering wastes time
-RENDER_EP = 500
+RENDER_EP = 5000
 
 GAMMA = 0.99     # reward discount in TD error
 LR_A = 0.001   # learning rate for actor
 LR_C = 0.01     # learning rate for critic
-BETA = 0.01
+BETA = 0.001
 
 env = Maze()
 
 N_F = env.n_features
 N_A = env.n_actions
 
+AL1SIZE = 30
+AL2SIZE = 30
+CL1SIZE = 30
+CL2SIZE = 30
+
+DISCOUNT = True
+PUNISHMENT = True
+SAVE = True
+save_directory = '/Users/yuxie/Lab/Maze_navigation/Data/en' + env_name + '_' + exp + '.mat'
+step_name = 'steps' + env_name + '_' + exp
+reward_name = 'reward' + env_name + '_' + exp
+smooth_r_name = reward_name + "_smooth"
 
 class Actor(object):
     def __init__(self, sess, n_features, n_actions, lr=0.001):
@@ -37,7 +54,7 @@ class Actor(object):
         with tf.variable_scope('Actor'):
             l1 = tf.layers.dense(
                 inputs=self.s,
-                units=30,    # number of hidden units
+                units=AL1SIZE,    # number of hidden units
                 activation=tf.nn.relu,
                 kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
@@ -46,7 +63,7 @@ class Actor(object):
 
             l2 = tf.layers.dense(
                 inputs=l1,
-                units=30,    # number of hidden units
+                units=AL2SIZE,    # number of hidden units
                 activation=tf.nn.relu,
                 kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
@@ -93,7 +110,7 @@ class Critic(object):
         with tf.variable_scope('Critic'):
             l1 = tf.layers.dense(
                 inputs=self.s,
-                units=30,  # number of hidden units
+                units=CL1SIZE,  # number of hidden units
                 activation=tf.nn.relu,  # None
                 # have to be linear to make sure the convergence of actor.
                 # But linear approximator seems hardly learns the correct Q.
@@ -104,7 +121,7 @@ class Critic(object):
 
             l2 = tf.layers.dense(
                 inputs=l1,
-                units=30,    # number of hidden units
+                units=CL2SIZE,    # number of hidden units
                 activation=tf.nn.relu,
                 kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
@@ -149,6 +166,7 @@ if OUTPUT_GRAPH:
 steps = 0
 track_step = []
 track_r = []
+track_smooth_r = []
 for i_episode in range(MAX_EPISODE):
 
     pos = env.random_pos()
@@ -169,12 +187,14 @@ for i_episode in range(MAX_EPISODE):
         s_, r, done = env.step(a)
         if RENDER: env.render()
 
-        if r > 0:
-            discount = 100.0 / float(t+1)
-            r = r * discount
+        if DISCOUNT:
+            if r > 0:
+                discount = 100.0 / float(t+1)
+                r = r * discount
 
-        if t == MAX_EP_STEPS - 1:
-            r = -10
+        if PUNISHMENT:
+            if t == MAX_EP_STEPS - 1:
+                r -= 10
 
         track_ep_r.append(r)
 
@@ -197,16 +217,19 @@ for i_episode in range(MAX_EPISODE):
                 running_reward = running_reward * 0.95 + ep_rs_sum * 0.05
 
             if running_reward > DISPLAY_REWARD_THRESHOLD: RENDER = True  # rendering
-            print("episode:", i_episode, "  reward:", int(running_reward))
+            print("episode:", i_episode, "  reward:", running_reward)
 
             track_step.append(steps)
             track_r.append(ep_rs_sum)
+            track_smooth_r.append(running_reward)
 
             break
 
 
-save_directory = '/Users/yuxie/Lab/Maze_navigation/Data/en1.mat'
-env1 = {}
-env1['steps1_1'] = track_step
-env1['reward1_1'] = track_r
-sio.savemat(save_directory, env1)
+if SAVE:
+    env1 = {}
+    env1[step_name] = track_step
+    env1[reward_name] = track_r
+    env1[smooth_r_name] = track_smooth_r
+
+    sio.savemat(save_directory, env1)

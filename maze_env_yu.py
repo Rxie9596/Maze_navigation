@@ -5,12 +5,17 @@ import random
 
 UNIT = 40  # pixels
 
+REWARD_AMOUNT = 10
+
+HITPUNISHMENT = False
+HITPUNISHMENT_AMOUNT = 1
+
 
 # env1
 MAZE_H = 5  # grid height
 MAZE_W = 5  # grid width
 GOAL = np.array([4, 1])
-BLOCK = np.array([[2, 1], [3, 1], [3, 4], [3, 3]])
+BLOCK = np.array([[2, 3], [3, 1], [3, 4], [3, 3]])
 INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
 KNOW_GOAL = False
 
@@ -20,6 +25,7 @@ KNOW_GOAL = False
 # GOAL = np.array([1, 5])
 # BLOCK = np.array([[1, 3],[2, 3],[3, 3], [4, 3]])
 # INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2],[3, 1],[3, 2]])
+# KNOW_GOAL = False
 
 # env3
 # MAZE_H = 5  # grid height
@@ -27,14 +33,37 @@ KNOW_GOAL = False
 # GOAL = np.array([4, 2])
 # BLOCK = np.array([[1, 3],[3, 3],[3, 2], [3, 1]])
 # INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2]])
+# KNOW_GOAL = False
 
 # env4
+# MAZE_H = 5  # grid height
+# MAZE_W = 5  # grid width
+# GOAL = np.array([5, 5])
+# BLOCK = np.array([[2, 1],[2, 2],[3, 5], [3, 4], [4, 2], [4, 4], [5, 2]])
+# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
+# KNOW_GOAL = False
+
+# env5
 # MAZE_H = 5  # grid height
 # MAZE_W = 5  # grid width
 # GOAL = np.array([4, 2])
 # BLOCK = np.array([[2, 3],[3, 3],[3, 2], [3, 1]])
 # INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2]])
 # KNOW_GOAL = False
+
+# env5
+# MAZE_H = 10  # grid height
+# MAZE_W = 10  # grid width
+# GOAL = np.array([10, 9])
+# BLOCK = np.array([[3, 1], [3, 2], [3, 3],
+#                   [3, 5], [4, 5], [5, 5], [6, 5],
+#                   [6, 4], [6, 3], [7, 3], [8, 3],
+#                   [5, 6], [5, 7], [5, 8], [1, 8], [2, 8],
+#                   [9, 6], [10, 6], [8, 9], [8, 10]])
+# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4],
+#                     [2, 1],[2, 2],[2, 3], [2, 4]])
+# KNOW_GOAL = True
+
 
 
 
@@ -151,14 +180,15 @@ class Maze(tk.Tk, object):
 
         # reward function
         if np.array_equal(self.agent, self.goal):
-            reward = 20
+            reward = REWARD_AMOUNT
             done = True
         else:
             reward = 0
             done = False
 
-        if hit:
-            reward -= 0.1
+        if HITPUNISHMENT:
+            if hit:
+                reward -= HITPUNISHMENT_AMOUNT
 
         s_ = np.zeros(self.maze_w + self.maze_h)
         s_[self.agent[0] - 1] = 1.0
@@ -181,7 +211,7 @@ class Maze(tk.Tk, object):
             fill='red')
 
         self.update()
-        time.sleep(0.01)
+        time.sleep(0.1)
 
     def random_pos(self):
 
