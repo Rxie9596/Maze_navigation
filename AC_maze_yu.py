@@ -2,14 +2,15 @@ import numpy as np
 import tensorflow as tf
 from maze_env_yu import Maze
 import time
+import scipy.io as sio
 
 np.random.seed(2)
 tf.set_random_seed(2)  # reproducible
 
 # Superparameters
 OUTPUT_GRAPH = True
-MAX_EPISODE = 3000
-DISPLAY_REWARD_THRESHOLD = 1000  # renders environment if total episode reward is greater then this threshold
+MAX_EPISODE = 2000
+DISPLAY_REWARD_THRESHOLD = 10000  # renders environment if total episode reward is greater then this threshold
 MAX_EP_STEPS = 100   # maximum time step in one episode
 RENDER = False  # rendering wastes time
 RENDER_EP = 500
@@ -17,7 +18,7 @@ RENDER_EP = 500
 GAMMA = 0.99     # reward discount in TD error
 LR_A = 0.001   # learning rate for actor
 LR_C = 0.01     # learning rate for critic
-BETA = 0.0001
+BETA = 0.01
 
 env = Maze()
 
@@ -64,7 +65,7 @@ class Actor(object):
         with tf.variable_scope('exp_v'):
             log_prob = tf.log(self.acts_prob[0, self.a])
             self.exp_v = tf.reduce_mean(log_prob * self.td_error) # advantage (TD_error) guided loss
-            # self.exp_v = tf.reduce_mean(log_prob * self.td_error) + BETA * tf.reduce_sum(tf.math.multiply(self.acts_prob, tf.log(tf.math.truediv(1.0, self.acts_prob))))
+            # self.exp_v = tf.reduce_mean(log_prob * self.td_error) + BETA * tf.reduce_sum(tf.math.multiply(self.acts_prob, tf.log(tf.math.truediv(1.0, self.acts_prob + 0.001))))
 
         with tf.variable_scope('train'):
             self.train_op = tf.train.AdamOptimizer(lr).minimize(-self.exp_v)  # minimize(-exp_v) = maximize(exp_v)
@@ -144,53 +145,68 @@ sess.run(tf.global_variables_initializer())
 if OUTPUT_GRAPH:
     tf.summary.FileWriter("logs/", sess.graph)
 
+
+steps = 0
+track_step = []
+track_r = []
 for i_episode in range(MAX_EPISODE):
+
+    pos = env.random_pos()
+    s = env.reset(agent_cor=pos)
 
     if i_episode > RENDER_EP:
         RENDER = True
 
-    pos = env.random_pos()
-    s = env.reset(agent_cor=pos)
     if RENDER:
         env.render()
         time.sleep(0.1)
 
     t = 0
-    track_r = []
+    track_ep_r = []
     while True:
         a = actor.choose_action(s)
 
         s_, r, done = env.step(a)
         if RENDER: env.render()
 
-        discount = 100.0 / float(t+1)
-        r = r * discount
+        if r > 0:
+            discount = 100.0 / float(t+1)
+            r = r * discount
 
         if t == MAX_EP_STEPS - 1:
-            r = -5
+            r = -10
 
-        track_r.append(r)
+        track_ep_r.append(r)
 
         td_error = critic.learn(s, r, s_)  # gradient = grad[r + gamma * V(s_) - V(s)]
         actor.learn(s, a, td_error)     # true_gradient = grad[logPi(s,a) * td_error]
 
         s = s_
         t += 1
+        steps += 1
 
 
         if done or t >= MAX_EP_STEPS:
 
 
-            ep_rs_sum = sum(track_r)
+            ep_rs_sum = sum(track_ep_r)
 
             if 'running_reward' not in globals():
                 running_reward = ep_rs_sum
             else:
                 running_reward = running_reward * 0.95 + ep_rs_sum * 0.05
 
-            # running_reward = ep_rs_sum
-
             if running_reward > DISPLAY_REWARD_THRESHOLD: RENDER = True  # rendering
             print("episode:", i_episode, "  reward:", int(running_reward))
 
+            track_step.append(steps)
+            track_r.append(ep_rs_sum)
+
             break
+
+
+save_directory = '/Users/yuxie/Lab/Maze_navigation/Data/en1.mat'
+env1 = {}
+env1['steps1_1'] = track_step
+env1['reward1_1'] = track_r
+sio.savemat(save_directory, env1)

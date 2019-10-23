@@ -4,33 +4,47 @@ import tkinter as tk
 import random
 
 UNIT = 40  # pixels
-MAZE_H = 5  # grid height
-MAZE_W = 5  # grid width
+
 
 # env1
-# GOAL = np.array([4, 1])
-# BLOCK = np.array([[2, 1], [3, 1], [2, 3], [3, 3]])
-# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
+MAZE_H = 5  # grid height
+MAZE_W = 5  # grid width
+GOAL = np.array([4, 1])
+BLOCK = np.array([[2, 1], [3, 1], [3, 4], [3, 3]])
+INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
+KNOW_GOAL = False
 
 # env2
+# MAZE_H = 5  # grid height
+# MAZE_W = 5  # grid width
 # GOAL = np.array([1, 5])
 # BLOCK = np.array([[1, 3],[2, 3],[3, 3], [4, 3]])
 # INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2],[3, 1],[3, 2]])
 
 # env3
-GOAL = np.array([4, 2])
-BLOCK = np.array([[1, 3],[3, 3],[3, 2], [3, 1]])
-INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2]])
+# MAZE_H = 5  # grid height
+# MAZE_W = 5  # grid width
+# GOAL = np.array([4, 2])
+# BLOCK = np.array([[1, 3],[3, 3],[3, 2], [3, 1]])
+# INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2]])
+
+# env4
+# MAZE_H = 5  # grid height
+# MAZE_W = 5  # grid width
+# GOAL = np.array([4, 2])
+# BLOCK = np.array([[2, 3],[3, 3],[3, 2], [3, 1]])
+# INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2]])
+# KNOW_GOAL = False
+
+
 
 AGENT = np.array([1, 1])
-
-
 class Maze(tk.Tk, object):
     def __init__(self):
         super(Maze, self).__init__()
         self.action_space = ['u', 'd', 'l', 'r']
         self.n_actions = len(self.action_space)
-        self.n_features = 2
+        self.n_features = 2*(MAZE_H + MAZE_W)
 
         self.origin = np.array([UNIT / 2, UNIT / 2])
 
@@ -41,6 +55,15 @@ class Maze(tk.Tk, object):
         self.maze_w = MAZE_W
 
         self.goal = GOAL
+
+        if KNOW_GOAL == True:
+            goalstate = np.zeros(self.maze_w + self.maze_h)
+            goalstate[self.goal[0]-1] = 1.0
+            goalstate[self.maze_w+self.goal[1] - 1] = 1.0
+            self.goalstate = goalstate
+        else:
+            self.goalstate = np.zeros(self.maze_w + self.maze_h)
+
         self.block = BLOCK
         self.agent = AGENT
         self.initial = INITIAL
@@ -88,9 +111,12 @@ class Maze(tk.Tk, object):
         else:
             self.agent = agent_cor
 
+        s = np.zeros(self.maze_w + self.maze_h)
+        s[self.agent[0]-1] = 1.0
+        s[self.maze_w+self.agent[1]-1] = 1.0
+        s = np.concatenate((s, self.goalstate))
         # return state
-        return np.array([self.agent[0] / self.maze_w - 0.625,
-                         self.agent[1] / self.maze_h - 0.625])
+        return s
 
     def step(self, action):
         hit = False
@@ -125,7 +151,7 @@ class Maze(tk.Tk, object):
 
         # reward function
         if np.array_equal(self.agent, self.goal):
-            reward = 10
+            reward = 20
             done = True
         else:
             reward = 0
@@ -134,9 +160,11 @@ class Maze(tk.Tk, object):
         if hit:
             reward -= 0.1
 
-        # next state
-        s_ = np.array([self.agent[0] / self.maze_w - 0.625,
-                       self.agent[1] / self.maze_h - 0.625])
+        s_ = np.zeros(self.maze_w + self.maze_h)
+        s_[self.agent[0] - 1] = 1.0
+        s_[self.maze_w + self.agent[1] - 1] = 1.0
+        s_ = np.concatenate((s_, self.goalstate))
+
         return s_, reward, done
 
     def render(self):
@@ -153,7 +181,7 @@ class Maze(tk.Tk, object):
             fill='red')
 
         self.update()
-        time.sleep(0.1)
+        time.sleep(0.01)
 
     def random_pos(self):
 
