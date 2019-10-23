@@ -6,8 +6,8 @@ import scipy.io as sio
 
 
 
-env_name = '3'
-exp = '2'
+env_name = '4'
+exp = '4'
 
 np.random.seed(int(exp))
 tf.set_random_seed(int(exp))  # reproducible
@@ -38,9 +38,9 @@ CL2SIZE = 30
 DISCOUNT = True
 PUNISHMENT = True
 SAVE = True
-save_directory = '/Users/yuxie/Lab/Maze_navigation/Data/en' + env_name + '_' + exp + '.mat'
-step_name = 'steps' + env_name + '_' + exp
-reward_name = 'reward' + env_name + '_' + exp
+save_directory = '/Users/yuxie/Lab/Maze_navigation/Data/en' + env_name + '_' + exp + '_know_goal' + '.mat'
+step_name = 'steps' + env_name + '_' + exp + '_know_goal'
+reward_name = 'reward' + env_name + '_' + exp + '_know_goal'
 smooth_r_name = reward_name + "_smooth"
 
 class Actor(object):

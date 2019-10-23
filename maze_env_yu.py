@@ -12,12 +12,12 @@ HITPUNISHMENT_AMOUNT = 1
 
 
 # env1
-MAZE_H = 5  # grid height
-MAZE_W = 5  # grid width
-GOAL = np.array([4, 1])
-BLOCK = np.array([[2, 3], [3, 1], [3, 4], [3, 3]])
-INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
-KNOW_GOAL = False
+# MAZE_H = 5  # grid height
+# MAZE_W = 5  # grid width
+# GOAL = np.array([4, 1])
+# BLOCK = np.array([[2, 3], [3, 1], [3, 4], [3, 3]])
+# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
+# KNOW_GOAL = True
 
 # env2
 # MAZE_H = 5  # grid height
@@ -25,7 +25,7 @@ KNOW_GOAL = False
 # GOAL = np.array([1, 5])
 # BLOCK = np.array([[1, 3],[2, 3],[3, 3], [4, 3]])
 # INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2],[3, 1],[3, 2]])
-# KNOW_GOAL = False
+# KNOW_GOAL = True
 
 # env3
 # MAZE_H = 5  # grid height
@@ -33,15 +33,15 @@ KNOW_GOAL = False
 # GOAL = np.array([4, 2])
 # BLOCK = np.array([[1, 3],[3, 3],[3, 2], [3, 1]])
 # INITIAL = np.array([[1, 1],[1, 2],[2, 1], [2, 2]])
-# KNOW_GOAL = False
+# KNOW_GOAL = True
 
 # env4
-# MAZE_H = 5  # grid height
-# MAZE_W = 5  # grid width
-# GOAL = np.array([5, 5])
-# BLOCK = np.array([[2, 1],[2, 2],[3, 5], [3, 4], [4, 2], [4, 4], [5, 2]])
-# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
-# KNOW_GOAL = False
+MAZE_H = 5  # grid height
+MAZE_W = 5  # grid width
+GOAL = np.array([5, 5])
+BLOCK = np.array([[2, 1],[2, 2],[3, 5], [3, 4], [4, 2], [4, 4], [5, 2]])
+INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
+KNOW_GOAL = True
 
 # env5
 # MAZE_H = 5  # grid height
