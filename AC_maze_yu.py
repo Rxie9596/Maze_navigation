@@ -6,7 +6,7 @@ import scipy.io as sio
 
 
 
-env_name = '4'
+env_name = '2'
 exp = '4'
 
 np.random.seed(int(exp))
@@ -14,7 +14,7 @@ tf.set_random_seed(int(exp))  # reproducible
 
 # Parameters
 OUTPUT_GRAPH = True
-MAX_EPISODE = 1000
+MAX_EPISODE = 2000
 DISPLAY_REWARD_THRESHOLD = 1000  # renders environment if total episode reward is greater then this threshold
 MAX_EP_STEPS = 100   # maximum time step in one episode
 RENDER = False  # rendering wastes time
@@ -38,9 +38,9 @@ CL2SIZE = 30
 DISCOUNT = True
 PUNISHMENT = True
 SAVE = True
-save_directory = '/Users/yuxie/Lab/Maze_navigation/Data/en' + env_name + '_' + exp + '_know_goal' + '.mat'
-step_name = 'steps' + env_name + '_' + exp + '_know_goal'
-reward_name = 'reward' + env_name + '_' + exp + '_know_goal'
+save_directory = '/Users/yuxie/Lab/Maze_navigation/Data/env' + env_name + '_' + exp + '_inf_baseline' + '.mat'
+step_name = 'steps' + env_name + '_' + exp + '_inf_baseline'
+reward_name = 'reward' + env_name + '_' + exp + '_inf_baseline'
 smooth_r_name = reward_name + "_smooth"
 
 class Actor(object):

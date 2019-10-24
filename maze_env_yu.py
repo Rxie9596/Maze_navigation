@@ -36,12 +36,12 @@ HITPUNISHMENT_AMOUNT = 1
 # KNOW_GOAL = True
 
 # env4
-MAZE_H = 5  # grid height
-MAZE_W = 5  # grid width
-GOAL = np.array([5, 5])
-BLOCK = np.array([[2, 1],[2, 2],[3, 5], [3, 4], [4, 2], [4, 4], [5, 2]])
-INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
-KNOW_GOAL = True
+# MAZE_H = 5  # grid height
+# MAZE_W = 5  # grid width
+# GOAL = np.array([5, 5])
+# BLOCK = np.array([[2, 1],[2, 2],[3, 5], [3, 4], [4, 2], [4, 4], [5, 2]])
+# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4]])
+# KNOW_GOAL = True
 
 # env5
 # MAZE_H = 5  # grid height
@@ -63,6 +63,24 @@ KNOW_GOAL = True
 # INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4],
 #                     [2, 1],[2, 2],[2, 3], [2, 4]])
 # KNOW_GOAL = True
+
+# inference env1
+# MAZE_H = 5  # grid height
+# MAZE_W = 5  # grid width
+# GOAL = np.array([5, 1])
+# BLOCK = np.array([[3, 1], [3, 2], [3, 3]])
+# INITIAL = np.array([[1, 1],[1, 2],[1, 3], [1, 4], [1, 5]])
+# KNOW_GOAL = False
+
+# inference env2
+MAZE_H = 5  # grid height
+MAZE_W = 5  # grid width
+GOAL = np.array([5, 5])
+BLOCK = np.array([[3, 3], [4, 3], [5, 3]])
+INITIAL = np.array([[1, 1], [2, 1], [3, 1], [4, 1], [5, 1]])
+KNOW_GOAL = False
+
+
 
 
 
@@ -211,7 +229,7 @@ class Maze(tk.Tk, object):
             fill='red')
 
         self.update()
-        time.sleep(0.1)
+        time.sleep(0.01)
 
     def random_pos(self):
 
